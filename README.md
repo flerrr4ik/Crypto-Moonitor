@@ -1,62 +1,78 @@
 Crypto Moonitor
 
-Crypto Moonitor is a modern and lightweight iOS application for real-time cryptocurrency market tracking. It offers detailed market insights, interactive charting, price alert notifications, and exchange-level information in a clean, responsive interface.
+Crypto Moonitor is a modern and lightweight iOS application for tracking live cryptocurrency prices. It delivers real-time data, interactive price charts, exchange-level market pairs, and local price alerts in a clean and responsive interface.
+
+⸻
 
 Features
 	•	Real-time data for the top 100 cryptocurrencies via CoinGecko API
-	•	Inline mini-charts rendered directly in the list view
+	•	Inline mini-charts embedded directly in the main coin list
 	•	Interactive line charts with selectable time ranges (1h, 24h, 7d, 30d, 90d)
-	•	Persistent favorites management
-	•	Price alert functionality with local notifications
-	•	Background price monitoring using BGTaskScheduler
-	•	Exchange data and top market pairs per cryptocurrency
-	•	Modular codebase with improved separation of concerns
-	•	Protocol-oriented abstraction for notification logic
+	•	Favorites management with persistent local storage
+	•	Price alert functionality via local notifications
+	•	Background price polling using BGTaskScheduler
+	•	Exchange information and market pairs per cryptocurrency
+	•	Protocol-oriented architecture for testability and modularity
+	•	Clean, scalable codebase built with UIKit
+
+⸻
 
 Technologies Used
 	•	Swift with UIKit
-	•	CoinGecko API – for all cryptocurrency data
-	•	Charts (DGCharts) – for dynamic graph rendering
-	•	SDWebImage – for asynchronous image loading and caching
-	•	UserNotifications Framework – for local notification delivery
-	•	UserDefaults – for lightweight local persistence
-	•	BGTaskScheduler – for background price polling
-	•	Protocol-oriented programming – for flexible notification injection
+	•	CoinGecko API — real-time cryptocurrency data
+	•	Charts (DGCharts) — line and mini-chart rendering
+	•	SDWebImage — asynchronous image loading and caching
+	•	UserNotifications — local notification scheduling
+	•	UserDefaults — lightweight persistent storage
+	•	BGTaskScheduler — background task execution
+	•	Protocol-oriented design — dependency injection and service abstraction
+
+⸻
 
 Architecture
 
-The app follows an MVC-based structure, with progressive separation via protocol conformance:
+The application is based on the MVC architecture, extended with protocol-driven service layers for better modularity.
 
 View Controllers
-	•	MainListVC – handles display of live cryptocurrency data, mini-charts, and sorting
-	•	DetailedCryptoVC – displays extended information, charts, social/media links, and market pairs
+	•	MainListVC — renders the list of cryptocurrencies with price, change indicator, and mini-charts
+	•	DetailedCryptoVC — displays detailed information, price charts, historical data, and exchange markets
 
 Services
-	•	APIService – centralized class for API calls and JSON decoding
-	•	FavoritesManager – singleton for managing favorite coins with persistent storage
-	•	NotificationService – notification delivery logic abstracted via NotificationManaging protocol
-	•	ChartService – reusable component for loading and rendering charts
-	•	PriceAlertOperation – background price check logic executed in scheduled tasks
+	•	APIService — handles API calls and JSON decoding
+	•	FavoritesManager — manages user favorites using UserDefaults
+	•	NotificationService — abstracts local notification logic using a protocol (NotificationManaging)
+	•	ChartService — renders line chart data using DGCharts
+	•	PriceAlertOperation — background operation that fetches data and triggers price alerts
 
 Protocols
-	•	NotificationManaging – abstract interface to handle notifications, allowing for dependency injection and mocking
-	•	Future services will continue adopting protocol-driven design for testability and modularity
+	•	NotificationManaging — protocol for notification handling, allowing for dependency injection and mocking
+	•	More services are transitioning toward protocol-based architecture to enhance modularity and testability
+
+⸻
 
 Setup Instructions
 	1.	Clone the repository
 	2.	Open Crypto Moonitor.xcodeproj in Xcode
-	3.	Build and run on a physical device or simulator
-	4.	No API key is required — CoinGecko’s free public API is used
+	3.	Build and run the app on a simulator or physical device
+	4.	No API key is required — CoinGecko’s public API is free to use
+
+⸻
 
 Planned Enhancements
-	•	Background refresh logic using Core Data and URLSession background sessions
-	•	Home screen widgets with live coin data
-	•	Localization (English, Ukrainian)
-	•	Enhanced dark mode visuals
-	•	Chart overlays: volume, moving averages
-	•	Modular refactoring to MVVM (in progress)
+	•	Core Data + background URLSession support for optimized background polling
+	•	Home screen widget with real-time coin data
+	•	Localization (English and Ukrainian)
+	•	Enhanced dark mode styling and accessibility support
+	•	Additional chart overlays: volume, moving averages
+	•	Migration toward MVVM pattern for improved scalability
+
+⸻
 
 Author
 
 Andrii Pyrskyi
 GitHub: @flerrr4ik
+
+⸻
+
+Disclaimer: This project is intended for educational and demonstration purposes only. It is not a financial tool and should not be used for investment decisions.
