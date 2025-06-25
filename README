@@ -56,8 +56,6 @@ The application is based on the MVC architecture, extended with protocol-driven 
 
 ## Planned Enhancements
 
-- Core Data + background URLSession support for optimized background polling  
-- Home screen widget with real-time coin data  
 - Localization (English and Ukrainian)  
 - Enhanced dark mode styling and accessibility support  
 - Additional chart overlays: volume, moving averages  
