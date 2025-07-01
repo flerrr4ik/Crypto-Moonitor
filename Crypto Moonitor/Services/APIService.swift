@@ -1,184 +1,152 @@
-//
-//  APIService.swift
-//  Crypto Tracker Lite
-//
-//  Created by Andrii Pyrskyi on 27.05.2025.
-//
+import Foundation
 
-import UIKit
-import DGCharts
-
-class APIService {
+final class APIService {
+    
     static let shared = APIService()
+    private let session: URLSession = .shared
+    private let baseURL = "https://api.coingecko.com/api/v3"
     
-    func fetchCryptos(completion: @escaping ([Crypto]?) -> Void) {
-        let urlString = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&sparkline=true"
-        guard let url = URL(string: urlString) else {
-            print("❌ Invalid URL for fetchCryptos")
-            DispatchQueue.main.async {
-                completion(nil)
-            }
+    private init() {}
+
+    // MARK: - Generic request
+
+    private func request<T: Decodable>(
+        endpoint: String,
+        queryItems: [URLQueryItem] = [],
+        responseType: T.Type,
+        completion: @escaping (Result<T, Error>) -> Void
+    ) {
+        var components = URLComponents(string: baseURL + endpoint)
+        components?.queryItems = queryItems
+
+        guard let url = components?.url else {
+            print("Invalid URL for endpoint: \(endpoint)")
+            completion(.failure(APIError.invalidURL))
             return
         }
-        
-        URLSession.shared.dataTask(with: url) { data, response, error in
+
+        session.dataTask(with: url) { data, response, error in
             if let error = error {
-                print("❌ Network error in fetchCryptos:", error.localizedDescription)
-                DispatchQueue.main.async {
-                    completion(nil)
-                }
+                print("Network error: \(error.localizedDescription)")
+                completion(.failure(error))
                 return
             }
-            
+
             guard let data = data else {
-                print("❌ No data in fetchCryptos")
-                DispatchQueue.main.async {
-                    completion(nil)
-                }
+                print("Empty response")
+                completion(.failure(APIError.emptyData))
                 return
             }
-            
+
             do {
-                let result = try JSONDecoder().decode([Crypto].self, from: data)
-                DispatchQueue.main.async {
-                    completion(result)
-                }
+                let decoded = try JSONDecoder().decode(T.self, from: data)
+                completion(.success(decoded))
             } catch {
-                print("❌ Decoding error in fetchCryptos:", error)
+                print("Decoding failed: \(error)")
                 if let raw = String(data: data, encoding: .utf8) {
-                    print("Raw response: \(raw)")
+                    print("Raw JSON:\n\(raw)")
                 }
-                DispatchQueue.main.async {
-                    completion(nil)
-                }
+                completion(.failure(error))
             }
         }.resume()
     }
-    
-    func fetchTickers(for id: String, completion: @escaping ([Ticker]?) -> Void) {
-        let urlString = "https://api.coingecko.com/api/v3/coins/\(id)/tickers"
 
-        guard let url = URL(string: urlString) else {
-            print("❌ Invalid URL for fetchTickers")
-            completion(nil)
-            return
+    // MARK: - Public API
+
+    func fetchCryptos(completion: @escaping (Result<[Crypto], Error>) -> Void) {
+        request(
+            endpoint: "/coins/markets",
+            queryItems: [
+                URLQueryItem(name: "vs_currency", value: "usd"),
+                URLQueryItem(name: "sparkline", value: "true")
+            ],
+            responseType: [Crypto].self,
+            completion: completion
+        )
+    }
+
+    func fetchCryptoByID(_ id: String, completion: @escaping (Result<Crypto, Error>) -> Void) {
+        request(
+            endpoint: "/coins/markets",
+            queryItems: [
+                URLQueryItem(name: "vs_currency", value: "usd"),
+                URLQueryItem(name: "ids", value: id),
+                URLQueryItem(name: "sparkline", value: "true")
+            ],
+            responseType: [Crypto].self
+        ) { result in
+            switch result {
+            case .success(let array): completion(.success(array.first!))
+            case .failure(let error): completion(.failure(error))
+            }
         }
-
-        URLSession.shared.dataTask(with: url) { data, _, error in
-            if let error = error {
-                print("❌ Error in fetchTickers:", error.localizedDescription)
-                completion(nil)
-                return
-            }
-
-            guard let data = data else {
-                print("❌ No data received in fetchTickers")
-                completion(nil)
-                return
-            }
-
-            do {
-                let result = try JSONDecoder().decode(TickerResponse.self, from: data)
-                let limitedTickers = Array(result.tickers.prefix(30))
-                completion(limitedTickers)
-            } catch {
-                print("❌ Decode error in fetchTickers:", error)
-                print(String(data: data, encoding: .utf8) ?? "n/a")
-                completion(nil)
-            }
-        }.resume()
     }
-    
-    func fetchExchanges(completion: @escaping ([Exchange]?) -> Void) {
-        let urlString = "https://api.coingecko.com/api/v3/exchanges?per_page=30&page=1"
-        guard let url = URL(string: urlString) else {
-            DispatchQueue.main.async {
-                completion(nil)
+
+    func fetchDetail(for id: String, completion: @escaping (Result<DetailedCrypto, Error>) -> Void) {
+        request(
+            endpoint: "/coins/\(id)",
+            queryItems: [
+                URLQueryItem(name: "localization", value: "false"),
+                URLQueryItem(name: "tickers", value: "false"),
+                URLQueryItem(name: "community_data", value: "false"),
+                URLQueryItem(name: "developer_data", value: "false")
+            ],
+            responseType: DetailedCrypto.self,
+            completion: completion
+        )
+    }
+
+    func fetchTickers(for id: String, completion: @escaping (Result<[Ticker], Error>) -> Void) {
+        request(
+            endpoint: "/coins/\(id)/tickers",
+            responseType: TickerResponse.self
+        ) { result in
+            switch result {
+            case .success(let response):
+                completion(.success(Array(response.tickers.prefix(30))))
+            case .failure(let error):
+                completion(.failure(error))
             }
-            return
         }
-        URLSession.shared.dataTask(with: url) { data, _, error in
-            guard let data = data, error == nil else {
-                print("❌ Network error:", error?.localizedDescription ?? "")
-                DispatchQueue.main.async {
-                    completion(nil)
-                }
-                return
-            }
-            do {
-                let exchanges  = try JSONDecoder().decode([Exchange].self, from: data)
-                DispatchQueue.main.async {
-                    completion(exchanges)
-                }
-            } catch {
-                print("Decoding error:", error)
-                DispatchQueue.main.async {
-                    completion(nil)
-                }
-            }
-        }.resume()
     }
-    
-    func fetchDetail(for id: String, completion: @escaping (DetailedCrypto?) -> Void) {
-        let urlString = "https://api.coingecko.com/api/v3/coins/\(id)?localization=false&tickers=false&community_data=false&developer_data=false"
 
-        guard let url = URL(string: urlString) else {
-            print("❌ Invalid URL")
-            completion(nil)
-            return
+    func fetchExchanges(completion: @escaping (Result<[Exchange], Error>) -> Void) {
+        request(
+            endpoint: "/exchanges",
+            queryItems: [
+                URLQueryItem(name: "per_page", value: "30"),
+                URLQueryItem(name: "page", value: "1")
+            ],
+            responseType: [Exchange].self,
+            completion: completion
+        )
+    }
+
+    func fetchPrice(for id: String, completion: @escaping (Result<Double, Error>) -> Void) {
+        request(
+            endpoint: "/simple/price",
+            queryItems: [
+                URLQueryItem(name: "ids", value: id),
+                URLQueryItem(name: "vs_currencies", value: "usd")
+            ],
+            responseType: [String: [String: Double]].self
+        ) { result in
+            switch result {
+            case .success(let dict):
+                if let price = dict[id]?["usd"] {
+                    completion(.success(price))
+                } else {
+                    completion(.failure(APIError.missingPrice))
+                }
+            case .failure(let error):
+                completion(.failure(error))
+            }
         }
-
-        URLSession.shared.dataTask(with: url) { data, response, error in
-            if let error = error {
-                print("❌ Network error:", error.localizedDescription)
-                completion(nil)
-                return
-            }
-
-            guard let data = data else {
-                print("❌ No data received")
-                completion(nil)
-                return
-            }
-
-            do {
-                let detailedCrypto = try JSONDecoder().decode(DetailedCrypto.self, from: data)
-                completion(detailedCrypto)
-            } catch {
-                print("❌ Decode error: \(error.localizedDescription)")
-                print("🧾 Raw JSON:", String(data: data, encoding: .utf8) ?? "n/a")
-                completion(nil)
-            }
-        }.resume()
     }
-    
-    func fetchCryptoByID(id: String, completion: @escaping (Crypto?) -> Void) {
-        let urlString = "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=\(id)&sparkline=true"
-        guard let url = URL(string: urlString) else {
-            DispatchQueue.main.async {
-                completion(nil)
-            }
-            return
-        }
-        URLSession.shared.dataTask(with: url) { data, _, error in
-            guard let data = data, error == nil else {
-                print("❌ Network error:", error?.localizedDescription ?? "")
-                DispatchQueue.main.async {
-                    completion(nil)
-                }
-                return
-            }
-            do {
-                let result = try JSONDecoder().decode([Crypto].self, from: data)
-                DispatchQueue.main.async {
-                    completion(result.first)
-                }
-            } catch {
-                print("Decoding error: \(error)")
-                DispatchQueue.main.async {
-                    completion(nil)
-                }
-            }
-        }.resume()
-    }
+}
+
+enum APIError: Error {
+    case invalidURL
+    case emptyData
+    case missingPrice
 }

@@ -1,6 +1,6 @@
 //
 //  TimeRange.swift
-//  Mooonitor
+//  Crypto Moonitor
 //
 //  Created by Andrii Pyrskyi on 12.06.2025.
 //
@@ -16,6 +16,9 @@ enum TimeRange: Int, CaseIterable {
         case .threeMonths: return "90"
         }
     }
+    
+    // MARK: - Display Properties
+    
     var displayName: String {
         switch self {
         case .hour: return "1h"

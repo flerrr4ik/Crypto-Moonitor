@@ -1,13 +1,15 @@
 //
 //  DescriptionViewController.swift
-//  Crypto Tracker Lite
+//  Crypto Moonitor
 //
 //  Created by Andrii Pyrskyi on 27.05.2025.
 //
 
 import UIKit
 
-class DescriptionView: UIViewController {
+final class DescriptionView: UIViewController {
+    
+    // MARK: - UI Components
     
     let textView: UITextView = {
         let tv = UITextView()
@@ -20,15 +22,8 @@ class DescriptionView: UIViewController {
         tv.layer.cornerRadius = 16
         tv.layer.masksToBounds = true
         tv.translatesAutoresizingMaskIntoConstraints = false
-        
         return tv
     }()
-    
-    var text: String? {
-        didSet {
-            textView.text = text
-        }
-    }
     
     private let closeButton: UIButton = {
         let button = UIButton(type: .system)
@@ -48,26 +43,38 @@ class DescriptionView: UIViewController {
         return label
     }()
     
+    // MARK: - Properties
+    
+    var text: String? {
+        didSet {
+            textView.text = text
+        }
+    }
+    
+    // MARK: - Lifecycle
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupView()
+        setupConstraints()
+        setupActions()
+    }
+    
+    // MARK: - Setup Methods
+    
+    private func setupView() {
         view.backgroundColor = .systemBackground
-        textView.isEditable = false
-        textView.font = .systemFont(ofSize: 16)
-        textView.translatesAutoresizingMaskIntoConstraints = false
-        
-        
         view.addSubview(textView)
         view.addSubview(closeButton)
         view.addSubview(titleLabel)
-        
-        closeButton.addTarget(self, action: #selector(dismissSelf), for: .touchUpInside)
-
-        
+    }
+    
+    private func setupConstraints() {
         NSLayoutConstraint.activate([
             closeButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 12),
             closeButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             
-            titleLabel.centerYAnchor.constraint(equalTo: closeButton.centerYAnchor, constant: 20),
+            titleLabel.centerYAnchor.constraint(equalTo: closeButton.centerYAnchor),
             titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             
             textView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 12),
@@ -76,8 +83,14 @@ class DescriptionView: UIViewController {
             textView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -20)
         ])
     }
+    
+    private func setupActions() {
+        closeButton.addTarget(self, action: #selector(dismissSelf), for: .touchUpInside)
+    }
+    
+    // MARK: - Actions
+    
     @objc private func dismissSelf() {
         dismiss(animated: true)
     }
- }
-
+}

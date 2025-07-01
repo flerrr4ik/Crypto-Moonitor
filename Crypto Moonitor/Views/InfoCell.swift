@@ -1,15 +1,19 @@
 //
 //  InfoCell.swift
-//  Crypto Tracker Lite
+//  Crypto Moonitor
 //
 //  Created by Andrii Pyrskyi on 27.05.2025.
 //
 
 import UIKit
 
-class InfoCell: UITableViewCell {
+final class InfoCell: UITableViewCell {
+    
+    // MARK: - Constants
     
     static let identifier = "InfoCell"
+    
+    // MARK: - UI Components
     
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -38,18 +42,36 @@ class InfoCell: UITableViewCell {
         return button
     }()
     
+    // MARK: - Properties
+    
     private var fullValueToCopy: String?
-
+    
+    // MARK: - Initialization
+    
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        setupCellAppearance()
+        setupSubviews()
+        setupConstraints()
+        setupButtonAction()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    // MARK: - Configuration
+    
     func configure(with row: InfoRow) {
         titleLabel.text = row.title
         valueLabel.text = row.value
         fullValueToCopy = row.fullValue
         copyButton.isHidden = (row.fullValue == nil)
     }
-
-    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
-        super.init(style: style, reuseIdentifier: reuseIdentifier)
-        
+    
+    // MARK: - Private Methods
+    
+    private func setupCellAppearance() {
         backgroundColor = .clear
         contentView.backgroundColor = UIColor.systemPurple.withAlphaComponent(0.05)
         contentView.layer.cornerRadius = 14
@@ -60,16 +82,20 @@ class InfoCell: UITableViewCell {
         contentView.layer.shadowRadius = 5
         contentView.layer.borderWidth = 0.6
         contentView.layer.borderColor = UIColor.systemGray4.cgColor
-
+    }
+    
+    private func setupSubviews() {
         contentView.addSubview(titleLabel)
         contentView.addSubview(valueLabel)
         contentView.addSubview(copyButton)
-
-        copyButton.addTarget(self, action: #selector(copyTapped), for: .touchUpInside)
-        
+    }
+    
+    private func setupConstraints() {
         NSLayoutConstraint.activate([
             titleLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             titleLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 12),
+            titleLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -12),
             
             copyButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),
             copyButton.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
@@ -81,16 +107,52 @@ class InfoCell: UITableViewCell {
             valueLabel.leadingAnchor.constraint(greaterThanOrEqualTo: titleLabel.trailingAnchor, constant: 8)
         ])
     }
-
+    
+    private func setupButtonAction() {
+        copyButton.addTarget(self, action: #selector(copyTapped), for: .touchUpInside)
+    }
+    
+    private func showCopiedMessage() {
+        let messageLabel = UILabel()
+        messageLabel.text = "Copied"
+        messageLabel.textColor = .white
+        messageLabel.backgroundColor = UIColor.black.withAlphaComponent(0.8)
+        messageLabel.font = UIFont.systemFont(ofSize: 13, weight: .medium)
+        messageLabel.textAlignment = .center
+        messageLabel.alpha = 0
+        messageLabel.layer.cornerRadius = 8
+        messageLabel.clipsToBounds = true
+        
+        contentView.addSubview(messageLabel)
+        messageLabel.translatesAutoresizingMaskIntoConstraints = false
+        
+        NSLayoutConstraint.activate([
+            messageLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            messageLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            messageLabel.widthAnchor.constraint(greaterThanOrEqualToConstant: 100),
+            messageLabel.heightAnchor.constraint(equalToConstant: 30)
+        ])
+        
+        UIView.animate(withDuration: 0.3, animations: {
+            messageLabel.alpha = 1
+        }) { _ in
+            UIView.animate(withDuration: 0.3, delay: 1.0, options: [], animations: {
+                messageLabel.alpha = 0
+            }, completion: { _ in
+                messageLabel.removeFromSuperview()
+            })
+        }
+    }
+    
+    // MARK: - Actions
+    
     @objc private func copyTapped() {
         guard let text = fullValueToCopy else { return }
         UIPasteboard.general.string = text
 
         let generator = UINotificationFeedbackGenerator()
         generator.notificationOccurred(.success)
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        
+        showCopiedMessage()
     }
 }

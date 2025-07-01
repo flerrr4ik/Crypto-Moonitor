@@ -1,6 +1,6 @@
 //
 //  NumberFormatter.swift
-//  Crypto Tracker Lite
+//  Crypto Moonitor
 //
 //  Created by Andrii Pyrskyi on 13.06.2025.
 //

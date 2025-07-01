@@ -1,6 +1,6 @@
 //
 //  DateAxisValueFormatter.swift
-//  Crypto Tracker Lite
+//  Crypto Moonitor
 //
 //  Created by Andrii Pyrskyi on 13.06.2025.
 //
@@ -9,16 +9,25 @@ import Foundation
 import Charts
 import DGCharts
 
-class DateAxisValueFormatter: AxisValueFormatter {
-    private let dateFormatter: DateFormatter
+class DateValueFormatter: AxisValueFormatter {
+    private let dateFormatter = DateFormatter()
     
-    init(format: String) {
-        dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = format
+    init(range: TimeRange) {
+        switch range {
+        case .hour:
+            dateFormatter.dateFormat = "HH:mm"
+        case .day:
+            dateFormatter.dateFormat = "HH:mm"
+        case .week, .month:
+            dateFormatter.dateFormat = "MMM d"
+        case .threeMonths:
+            dateFormatter.dateFormat = "MMM"
+        }
+        dateFormatter.timeZone = .current
     }
-    
+
     func stringForValue(_ value: Double, axis: AxisBase?) -> String {
-        let date = Date(timeIntervalSince1970: value / 1000)
+        let date = Date(timeIntervalSince1970: value)
         return dateFormatter.string(from: date)
     }
 }
