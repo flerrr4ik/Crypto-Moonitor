@@ -1,6 +1,6 @@
 //
 //  ChartService.swift
-//  Crypto Tracker Lite
+//  Crypto Moonitor
 //
 //  Created by Andrii Pyrskyi on 12.06.2025.
 //
@@ -13,9 +13,40 @@ import UIKit
 final class ChartService {
     static let shared = ChartService()
     private init() {}
+    
+    // MARK: - Public Methods
+    
+    func loadAndDisplayChart(
+        for id: String,
+        in range: TimeRange,
+        using chartView: LineChartView,
+        cache: [TimeRange: [ChartDataEntry]],
+        updateCache: @escaping ([TimeRange: [ChartDataEntry]]) -> Void
+    ) {
+        if let cached = cache[range] {
+            print("📦 Using cached chart data for \(id), range: \(range)")
+            updateChart(with: cached, in: range, on: chartView)
+            return
+        }
 
-    // MARK: - API
+        print("🔁 LoadAndDisplayChart triggered for \(id), range: \(range)")
 
+        fetchChartData(id: id, range: range) { entries in
+            guard let entries = entries else {
+                print("❌ Failed to fetch chart data for \(id), range: \(range)")
+                return
+            }
+
+            var newCache = cache
+            newCache[range] = entries
+            updateCache(newCache)
+
+            self.updateChart(with: entries, in: range, on: chartView)
+        }
+    }
+    
+    // MARK: - API Methods
+    
     func fetchChartData(
         id: String,
         range: TimeRange,
@@ -60,42 +91,11 @@ final class ChartService {
                 print("🧾 Raw JSON for \(id):\n\(String(data: data, encoding: .utf8) ?? "n/a")")
                 DispatchQueue.main.async { completion(nil) }
             }
-
         }.resume()
     }
-
-    // MARK: - Public Chart Loader
-
-    func loadAndDisplayChart(
-        for id: String,
-        in range: TimeRange,
-        using chartView: LineChartView,
-        cache: [TimeRange: [ChartDataEntry]],
-        updateCache: @escaping ([TimeRange: [ChartDataEntry]]) -> Void
-    ) {
-        if let cached = cache[range] {
-            print("📦 Using cached chart data for \(id), range: \(range)")
-            updateChart(with: cached, in: range, on: chartView)
-            return
-        }
-
-        print("🔁 LoadAndDisplayChart triggered for \(id), range: \(range)")
-
-        fetchChartData(id: id, range: range) { entries in
-            guard let entries = entries else {
-                print("❌ Failed to fetch chart data for \(id), range: \(range)")
-                return
-            }
-
-            var newCache = cache
-            newCache[range] = entries
-            updateCache(newCache)
-
-            self.updateChart(with: entries, in: range, on: chartView)
-        }
-    }
-    // MARK: - Internal UI Update
-
+    
+    // MARK: - Private Methods
+    
     private func updateChart(
         with entries: [ChartDataEntry],
         in range: TimeRange,
@@ -149,11 +149,11 @@ final class ChartService {
         // X Axis format
         switch range {
         case .hour, .day:
-            chartView.xAxis.valueFormatter = DateAxisValueFormatter(format: "HH:mm")
+            chartView.xAxis.valueFormatter = DateValueFormatter(range: range)
         case .week:
-            chartView.xAxis.valueFormatter = DateAxisValueFormatter(format: "E")
+            chartView.xAxis.valueFormatter = DateValueFormatter(range: range)
         case .month, .threeMonths:
-            chartView.xAxis.valueFormatter = DateAxisValueFormatter(format: "d MMM")
+            chartView.xAxis.valueFormatter = DateValueFormatter(range: range)
         }
 
         chartView.xAxis.setLabelCount(6, force: true)

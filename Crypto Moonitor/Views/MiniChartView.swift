@@ -1,6 +1,6 @@
 //
 //  MiniChartView.swift
-//  Crypto Tracker Lite
+//  Crypto Moonitor
 //
 //  Created by Andrii Pyrskyi on 27.05.2025.
 //
@@ -9,9 +9,9 @@ import UIKit
 
 class MiniChartView: UIView {
     
+    // MARK: - Properties
     private var lineLayer: CAShapeLayer = CAShapeLayer()
     private var lineColor: UIColor = .systemBlue
-    
     private var bufferedPrices: [CGFloat]?
     
     var prices: [CGFloat] = [] {
@@ -24,6 +24,7 @@ class MiniChartView: UIView {
         }
     }
     
+    // MARK: - Initialization
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupLayer()
@@ -33,6 +34,7 @@ class MiniChartView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    // MARK: - Lifecycle
     override func layoutSubviews() {
         super.layoutSubviews()
         if let buffered = bufferedPrices {
@@ -43,6 +45,7 @@ class MiniChartView: UIView {
         }
     }
     
+    // MARK: - Setup
     private func setupLayer() {
         layer.addSublayer(lineLayer)
         lineLayer.fillColor = UIColor.clear.cgColor
@@ -55,6 +58,7 @@ class MiniChartView: UIView {
         lineLayer.shadowOffset = CGSize(width: 0, height: 2)
     }
     
+    // MARK: - Public Methods
     func setColor(_ color: UIColor) {
         self.lineColor = color
         lineLayer.strokeColor = color.cgColor
@@ -69,6 +73,7 @@ class MiniChartView: UIView {
         lineLayer.path = nil
     }
     
+    // MARK: - Private Methods
     private func drawChart() {
         guard prices.count > 1, bounds.width > 0, bounds.height > 0 else {
             lineLayer.path = nil
@@ -77,7 +82,8 @@ class MiniChartView: UIView {
         
         let maxY = prices.max() ?? 1
         let minY = prices.min() ?? 0
-        let range = max(maxY - minY, 0.01)
+        let epsilon = max(minY * 0.01, 0.00000001)
+        let range = max(maxY - minY, epsilon)
         let stepX = bounds.width / CGFloat(prices.count - 1)
         
         let path = UIBezierPath()

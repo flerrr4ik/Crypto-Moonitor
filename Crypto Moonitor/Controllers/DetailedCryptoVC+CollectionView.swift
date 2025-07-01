@@ -8,6 +8,9 @@
 import UIKit
 
 extension DetailedCryptoVC: UICollectionViewDataSource, UICollectionViewDelegate {
+    
+    // MARK: - UICollectionViewDataSource
+    
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return tickers.count
     }
@@ -21,6 +24,8 @@ extension DetailedCryptoVC: UICollectionViewDataSource, UICollectionViewDelegate
         return cell
     }
     
+    // MARK: - UICollectionViewDelegate
+    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let ticker = tickers[indexPath.item]
         let name = ticker.market.name
@@ -28,9 +33,11 @@ extension DetailedCryptoVC: UICollectionViewDataSource, UICollectionViewDelegate
         if let urlString = exchangeURLs[name], let url = URL(string: urlString) {
             UIApplication.shared.open(url)
         } else {
-            print("Немає URL для біржі \(name)")
+            print("No URL found for exchange \(name)")
         }
     }
+    
+    // MARK: - Cell Highlight Animation
     
     func collectionView(_ collectionView: UICollectionView, didHighlightItemAt indexPath: IndexPath) {
         if let cell = collectionView.cellForItem(at: indexPath) {
@@ -39,7 +46,7 @@ extension DetailedCryptoVC: UICollectionViewDataSource, UICollectionViewDelegate
             }
         }
     }
-
+    
     func collectionView(_ collectionView: UICollectionView, didUnhighlightItemAt indexPath: IndexPath) {
         if let cell = collectionView.cellForItem(at: indexPath) {
             UIView.animate(withDuration: 0.2,

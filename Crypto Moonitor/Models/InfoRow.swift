@@ -1,6 +1,6 @@
 //
 //  InfoRow.swift
-//  Crypto Tracker Lite
+//  Crypto Moonitor
 //
 //  Created by Andrii Pyrskyi  on 25.05.2025.
 //

@@ -1,6 +1,6 @@
 //
 //  FavoritesManager.swift
-//  Crypto Tracker Lite
+//  Crypto Moonitor
 //
 //  Created by Andrii Pyrskyi on 27.05.2025.
 //
@@ -8,12 +8,15 @@
 import UIKit
 
 class FavoritesManager {
+    
+    // MARK: - Singleton Instance
+    
     static let shared = FavoritesManager()
-    
-    private let key = "favorites"
-    
     private init() {}
     
+    // MARK: Properties
+    
+    private let key = "favorites"
     var favoriteIds: Set<String> {
         get {
             return Set(UserDefaults.standard.stringArray(forKey: key) ?? [])
@@ -22,6 +25,8 @@ class FavoritesManager {
             UserDefaults.standard.set(Array(newValue), forKey: key)
         }
     }
+    
+    // MARK: - Public Methods
     
     func addFavorite(id: String) {
         var favorites = favoriteIds

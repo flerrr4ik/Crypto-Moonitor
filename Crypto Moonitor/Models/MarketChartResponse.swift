@@ -1,7 +1,7 @@
 //
 //  ChartData.swift
-//  Crypto Tracker Lite
-//
+//  Crypto Moonitor
+
 //  Created by Andrii Pyrskyi  on 02.04.2025.
 //
 //

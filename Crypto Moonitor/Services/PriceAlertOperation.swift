@@ -1,63 +1,56 @@
 //
-//  CryptoFetchOperation.swift
-//  Crypto Tracker Lite
+//  PriceAlertOperation.swift
+//  Crypto Moonitor
 //
-//  Created by Andrii Pyrskyi on 27.05.2025.
+//  Created by Andrii Pyrskyi on 12.06.2025.
 //
 
-import Foundation
-import UserNotifications
-
+import UIKit
 final class PriceAlertOperation: Operation, @unchecked Sendable {
+    
+    // MARK: - Properties
+    
     private let cryptoID: String
     private let targetPrice: Double
+    private let notificationManager: NotificationManaging
     
-    init(cryptoID: String, targetPrice: Double) {
+    // MARK: - Initialization
+    
+    init(cryptoID: String, targetPrice: Double, notificationManager: NotificationManaging) {
         self.cryptoID = cryptoID
         self.targetPrice = targetPrice
+        self.notificationManager = notificationManager
     }
+    
+    // MARK: - Main Execution
     
     override func main() {
         if isCancelled { return }
-        
+
         let semaphore = DispatchSemaphore(value: 0)
-        
-        APIService.shared.fetchCryptoByID(id: cryptoID) { crypto in
+
+        APIService.shared.fetchCryptoByID(cryptoID) { [weak self] result in
             defer { semaphore.signal() }
-            
-            guard let crypto = crypto else {
-                print("❌ Failed to fetch \(self.cryptoID)")
-                return
-            }
-            
-            print("✅ Price for \(crypto.name): \(crypto.current_price)$")
-            
-            if crypto.current_price >= self.targetPrice {
-                self.sendPushNotification(for: crypto)
+
+            guard let self = self else { return }
+
+            switch result {
+            case .success(let crypto):
+                print("✅ Price for \(crypto.name): \(crypto.current_price)$")
+
+                if crypto.current_price >= self.targetPrice {
+                    self.notificationManager.schedulePriceAlert(
+                        id: self.cryptoID,
+                        title: crypto.name,
+                        targetPrice: self.targetPrice
+                    )
+                }
+
+            case .failure(let error):
+                print("❌ Failed to fetch \(self.cryptoID): \(error.localizedDescription)")
             }
         }
-        
+
         semaphore.wait()
-    }
-    
-    private func sendPushNotification(for crypto: Crypto) {
-        let content = UNMutableNotificationContent()
-        content.title = "\(crypto.name) досяг таргету!"
-        content.body = "Ціна: \(crypto.current_price)$ (таргет: \(targetPrice)$)"
-        content.sound = .default
-        
-        let request = UNNotificationRequest(
-            identifier: UUID().uuidString,
-            content: content,
-            trigger: nil // показати одразу
-        )
-        
-        UNUserNotificationCenter.current().add(request) { error in
-            if let error = error {
-                print("❌ Notification error:", error)
-            } else {
-                print("🔔 Notification scheduled!")
-            }
-        }
     }
 }

@@ -1,6 +1,6 @@
 //
 //  SparklineData.swift
-//  Crypto Tracker Lite
+//  Crypto Moonitor
 //
 //  Created by Andrii Pyrskyi on 27.05.2025.
 //

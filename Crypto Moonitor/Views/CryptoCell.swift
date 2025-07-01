@@ -1,6 +1,6 @@
 //
 //  CryptoCell.swift
-//  Crypto Tracker Lite
+//  Crypto Moonitor
 //
 //  Created by Andrii Pyrskyi on 27.05.2025.
 //
@@ -8,7 +8,9 @@
 import UIKit
 import SDWebImage
 
-class CryptoCell: UITableViewCell {
+final class CryptoCell: UITableViewCell {
+    
+    // MARK: - UI Properties
     
     private let rankLabel = UILabel()
     private let iconImageView = UIImageView()
@@ -18,9 +20,10 @@ class CryptoCell: UITableViewCell {
     private let chartView = MiniChartView()
     private let priceChangeLabel = UILabel()
     
+    // MARK: - Lifecycle
+    
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        
         setupViews()
     }
     
@@ -28,13 +31,16 @@ class CryptoCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    // MARK: - Configuration
+    
     func configureBasicInfo(with crypto: Crypto) {
+        // Basic info
         rankLabel.text = "\(crypto.market_cap_rank)"
         symbolLabel.text = crypto.symbol.uppercased()
         
+        // Price change
         if let change = crypto.price_change_percentage_24h {
-            let text = String(format: "%.2f%%", change)
-            priceChangeLabel.text = text
+            priceChangeLabel.text = String(format: "%.2f%%", change)
             if change >= -0.01 {
                 priceChangeLabel.textColor = .systemGreen
                 chartView.setColor(.systemGreen)
@@ -48,38 +54,39 @@ class CryptoCell: UITableViewCell {
             chartView.setColor(.gray)
         }
         
+        // Market cap
         if let marketCap = crypto.market_cap {
-            let billions = Double(marketCap) / 1_000_000_000
-            marketCapLabel.text = String(format: "$%.2fB", billions)
+            marketCapLabel.text = String(format: "$%.2fB", Double(marketCap) / 1_000_000_000)
         } else {
             marketCapLabel.text = "Market Cap: N/A"
         }
         
-        if crypto.current_price < 1 {
-            priceLabel.text = String(format: "$%.6f", crypto.current_price)
-        } else {
-            priceLabel.text = String(format: "$%.2f", crypto.current_price)
-        }
+        // Price formatting
+        priceLabel.text = crypto.current_price < 1 ?
+            String(format: "$%.6f", crypto.current_price) :
+            String(format: "$%.2f", crypto.current_price)
         
+        // Image loading
         if let url = URL(string: crypto.image) {
             iconImageView.sd_setImage(with: url, placeholderImage: UIImage(systemName: "bitcoinsign.circle"))
         }
     }
     
     func loadChart(with prices: [CGFloat]) {
-        if prices.isEmpty {
-            chartView.setEmpty()
-        } else {
-            chartView.setData(prices)
-        }
+        prices.isEmpty ? chartView.setEmpty() : chartView.setData(prices)
     }
     
+    // MARK: - Setup Views
+    
     private func setupViews() {
+        // Rank label setup
         rankLabel.font = .systemFont(ofSize: 14, weight: .medium)
         rankLabel.textColor = .secondaryLabel
         rankLabel.textAlignment = .center
         rankLabel.widthAnchor.constraint(equalToConstant: 30).isActive = true
+
         
+        // Icon image setup
         iconImageView.contentMode = .scaleAspectFit
         iconImageView.clipsToBounds = true
         iconImageView.layer.cornerRadius = 20
@@ -87,10 +94,12 @@ class CryptoCell: UITableViewCell {
         iconImageView.widthAnchor.constraint(equalToConstant: 40).isActive = true
         iconImageView.heightAnchor.constraint(equalToConstant: 40).isActive = true
         
+        // Symbol labels setup
         symbolLabel.font = .boldSystemFont(ofSize: 16)
         marketCapLabel.font = .systemFont(ofSize: 12)
         marketCapLabel.textColor = .secondaryLabel
         
+        // Info stack (symbol + market cap)
         let infoStack = UIStackView(arrangedSubviews: [symbolLabel, marketCapLabel])
         infoStack.axis = .vertical
         infoStack.spacing = 2
@@ -98,17 +107,17 @@ class CryptoCell: UITableViewCell {
         infoStack.setContentCompressionResistancePriority(.required, for: .horizontal)
         infoStack.widthAnchor.constraint(lessThanOrEqualToConstant: 70).isActive = true
         
-        
+        // Price label setup
         priceLabel.font = .systemFont(ofSize: 16, weight: .medium)
         priceLabel.textAlignment = .center
         priceLabel.setContentHuggingPriority(.required, for: .horizontal)
         priceLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         priceLabel.widthAnchor.constraint(equalToConstant: 90).isActive = true
         
+        // Price label container
         let priceLabelContainer = UIView()
         priceLabel.translatesAutoresizingMaskIntoConstraints = false
         priceLabelContainer.addSubview(priceLabel)
-
         NSLayoutConstraint.activate([
             priceLabel.leadingAnchor.constraint(equalTo: priceLabelContainer.leadingAnchor, constant: -4),
             priceLabel.topAnchor.constraint(equalTo: priceLabelContainer.topAnchor),
@@ -116,7 +125,7 @@ class CryptoCell: UITableViewCell {
             priceLabel.trailingAnchor.constraint(equalTo: priceLabelContainer.trailingAnchor)
         ])
         
-        
+        // Left stack (rank + icon + info + price)
         let leftStack = UIStackView(arrangedSubviews: [rankLabel, iconImageView, infoStack, priceLabelContainer])
         leftStack.axis = .horizontal
         leftStack.alignment = .center
@@ -124,22 +133,26 @@ class CryptoCell: UITableViewCell {
         leftStack.setContentHuggingPriority(.required, for: .horizontal)
         leftStack.setContentCompressionResistancePriority(.required, for: .horizontal)
         
+        // Chart setup
         chartView.translatesAutoresizingMaskIntoConstraints = false
         chartView.heightAnchor.constraint(equalToConstant: 40).isActive = true
-        chartView.widthAnchor.constraint(equalToConstant: 110).isActive = true
+        chartView.widthAnchor.constraint(equalToConstant: 95).isActive = true
         chartView.setContentHuggingPriority(.defaultLow, for: .horizontal)
         chartView.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         
+        // Price change label
         priceChangeLabel.font = .systemFont(ofSize: 13)
         priceChangeLabel.textAlignment = .center
         priceChangeLabel.setContentHuggingPriority(.required, for: .horizontal)
         
+        // Right stack (chart + price change)
         let rightStack = UIStackView(arrangedSubviews: [chartView, priceChangeLabel])
         rightStack.axis = .vertical
         rightStack.spacing = 4
         rightStack.alignment = .fill
         rightStack.distribution = .fillEqually
         
+        // Main stack
         let mainStack = UIStackView(arrangedSubviews: [leftStack, rightStack])
         mainStack.axis = .horizontal
         mainStack.alignment = .center
@@ -150,6 +163,7 @@ class CryptoCell: UITableViewCell {
         contentView.addSubview(mainStack)
         mainStack.tintColor = UIColor(named: "AccentColor")
         
+        // Main constraints
         NSLayoutConstraint.activate([
             mainStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
             mainStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),

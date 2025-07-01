@@ -1,13 +1,16 @@
 //
 //  MarketCell.swift
-//  Crypto Tracker Lite
+//  Crypto Moonitor
 //
 //  Created by Andrii Pyrskyi on 27.05.2025.
 //
 
 import UIKit
 
-class MarketCell: UICollectionViewCell {
+final class MarketCell: UICollectionViewCell {
+    
+    // MARK: - UI Components
+    
     private let logoImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFit
@@ -34,56 +37,73 @@ class MarketCell: UICollectionViewCell {
         return label
     }()
     
-    override init (frame: CGRect) {
-        super.init (frame: frame)
-        contentView.backgroundColor = UIColor.systemGray6.withAlphaComponent(0.6)
-        contentView.layer.cornerRadius = 12
-        contentView.clipsToBounds = true
+    // MARK: - Initialization
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setupCellAppearance()
         setupViews()
     }
-    required init? (coder: NSCoder) {
+    
+    required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
+    // MARK: - Configuration
+    
+    func configure(with ticker: Ticker, logoURL: String?) {
+        nameLabel.text = ticker.market.name
+        pairAndPriceLabel.text = "\(ticker.base)/\(ticker.target)\n$\(ticker.last)"
+        loadLogoImage(from: logoURL)
+    }
+    
+    // MARK: - Private Methods
+    
+    private func setupCellAppearance() {
+        contentView.backgroundColor = UIColor.systemGray6.withAlphaComponent(0.6)
+        contentView.layer.cornerRadius = 12
+        contentView.clipsToBounds = true
+    }
+    
     private func setupViews() {
+        // Configure logo image view
         logoImageView.contentMode = .scaleAspectFit
         logoImageView.layer.cornerRadius = 8
         logoImageView.clipsToBounds = true
-        logoImageView.translatesAutoresizingMaskIntoConstraints = false
-
+        
+        // Configure name label
         nameLabel.font = UIFont.systemFont(ofSize: 13, weight: .semibold)
         nameLabel.numberOfLines = 1
-        nameLabel.translatesAutoresizingMaskIntoConstraints = false
-
+        
+        // Configure pair and price label
         pairAndPriceLabel.font = UIFont.systemFont(ofSize: 11)
         pairAndPriceLabel.textColor = .secondaryLabel
         pairAndPriceLabel.numberOfLines = 2
         pairAndPriceLabel.adjustsFontSizeToFitWidth = true
         pairAndPriceLabel.minimumScaleFactor = 0.7
-        pairAndPriceLabel.translatesAutoresizingMaskIntoConstraints = false
-
-        // Стек для тексту
+        
+        // Create labels stack
         let labelsStack = UIStackView(arrangedSubviews: [nameLabel, pairAndPriceLabel])
         labelsStack.axis = .vertical
         labelsStack.spacing = 4
         labelsStack.alignment = .leading
-        labelsStack.translatesAutoresizingMaskIntoConstraints = false
         labelsStack.setContentHuggingPriority(.defaultLow, for: .horizontal)
         labelsStack.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
-
-        // Головний горизонтальний стек
+        
+        // Create main horizontal stack
         let horizontalStack = UIStackView(arrangedSubviews: [logoImageView, labelsStack])
         horizontalStack.axis = .horizontal
         horizontalStack.spacing = 12
         horizontalStack.alignment = .center
-        horizontalStack.translatesAutoresizingMaskIntoConstraints = false
-
+        
+        // Add to content view and activate constraints
         contentView.addSubview(horizontalStack)
-
+        horizontalStack.translatesAutoresizingMaskIntoConstraints = false
+        
         NSLayoutConstraint.activate([
             logoImageView.widthAnchor.constraint(equalToConstant: 32),
             logoImageView.heightAnchor.constraint(equalToConstant: 32),
-
+            
             horizontalStack.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
             horizontalStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
             horizontalStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -12),
@@ -91,20 +111,18 @@ class MarketCell: UICollectionViewCell {
         ])
     }
     
-    func configure(with ticker: Ticker, logoURL: String?) {
-        nameLabel.text = ticker.market.name
-        pairAndPriceLabel.text = "\(ticker.base)/\(ticker.target)\n$\(ticker.last)"
-        
-        if let logoURL = logoURL, let url = URL(string: logoURL) {
-            URLSession.shared.dataTask(with: url) { data, _, _ in
-                if let data = data {
-                    DispatchQueue.main.async {
-                        self.logoImageView.image = UIImage(data: data)
-                    }
-                }
-            }.resume()
-        } else {
+    private func loadLogoImage(from urlString: String?) {
+        guard let logoURL = urlString, let url = URL(string: logoURL) else {
             logoImageView.image = UIImage(systemName: "questionmark")
+            return
         }
+        
+        URLSession.shared.dataTask(with: url) { data, _, _ in
+            if let data = data {
+                DispatchQueue.main.async {
+                    self.logoImageView.image = UIImage(data: data)
+                }
+            }
+        }.resume()
     }
 }
