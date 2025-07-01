@@ -191,10 +191,10 @@ class MainListVC: UIViewController {
             emptyStateLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
             emptyStateLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
             
-            numberStack.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.07),
-            marketCapStack.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.13),
-            priceStack.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.12),
-            priceChangeStack.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.1),
+            numberStack.widthAnchor.constraint(lessThanOrEqualTo: view.widthAnchor, multiplier: 0.07),
+            marketCapStack.widthAnchor.constraint(lessThanOrEqualTo: view.widthAnchor, multiplier: 0.13),
+            priceStack.widthAnchor.constraint(lessThanOrEqualTo: view.widthAnchor, multiplier: 0.12),
+            priceChangeStack.widthAnchor.constraint(lessThanOrEqualTo: view.widthAnchor, multiplier: 0.1),
         ])
         
         segmentControl.translatesAutoresizingMaskIntoConstraints = false
