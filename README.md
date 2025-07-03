@@ -1,10 +1,9 @@
 ## 📱 Screenshots
 
-### Main Screen
-![Main Screen](docs/mainScreen.png)
-
-### Detail Screen
-![Detail Screen](docs/detailScreen.png)
+<p align="center">
+  <img src="docs/mainScreen.png" width="200" />
+  <img src="docs/detailScreen.png" width="200" />
+</p>
 
 # Crypto Moonitor
 
