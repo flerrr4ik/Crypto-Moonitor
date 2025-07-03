@@ -1,8 +1,8 @@
-## 📱 Screenshots
 
-<p align="center">
-  <img src="docs/mainScreen.png" width="200" />
-  <img src="docs/detailScreen.png" width="200" />
+<p>
+  <img src="docs/main.png" width="32%" style="margin-right: 2%;" />
+  <img src="docs/favorite.png" width="32%" style="margin-right: 2%;" />
+  <img src="docs/dateil.png" width="32%" />
 </p>
 
 # Crypto Moonitor
