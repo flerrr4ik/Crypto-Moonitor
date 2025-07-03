@@ -407,7 +407,7 @@ class DetailedCryptoVC: UIViewController {
         symbolLabel.text = crypto.symbol.uppercased()
         symbolLabel.font = .systemFont(ofSize: 26, weight: .medium)
         
-        priceLabel.text = String(format: "%.2f$", crypto.current_price)
+        priceLabel.text = String(format: "%.5f$", crypto.current_price)
         priceLabel.font = .monospacedDigitSystemFont(ofSize: 24, weight: .bold)
         priceLabel.textColor = .label
         priceLabel.numberOfLines = 0
@@ -646,6 +646,8 @@ class DetailedCryptoVC: UIViewController {
             guard let self = self else { return }
             switch result {
             case .success ( let newPrice) :
+                
+                priceLabel.text = String(format: "%.5f$", newPrice)
                 DispatchQueue.main.async {
                     print("New price: \(newPrice), target: \(target)")
                     if newPrice >= target {
