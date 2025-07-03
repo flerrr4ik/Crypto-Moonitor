@@ -1,10 +1,4 @@
 
-<p>
-  <img src="docs/main.png" width="32%" style="margin-right: 2%;" />
-  <img src="docs/favorite.png" width="32%" style="margin-right: 2%;" />
-  <img src="docs/dateil.png" width="32%" />
-</p>
-
 # Crypto Moonitor
 
 **Crypto Moonitor** is a modern and lightweight iOS application for tracking live cryptocurrency prices. It delivers real-time data, interactive price charts, exchange-level market pairs, and local price alerts in a clean and responsive interface.
@@ -72,6 +66,14 @@ The application is based on the MVC architecture, extended with protocol-driven 
 
 **Andrii Pyrskyi**  
 GitHub: [@flerrr4ik](https://github.com/flerrr4ik)
+
+
+<p>
+  <img src="docs/main.png" width="32%" style="margin-right: 2%;" />
+  <img src="docs/favorite.png" width="32%" style="margin-right: 2%;" />
+  <img src="docs/datail.png" width="32%" />
+</p>
+
 
 ---
 
