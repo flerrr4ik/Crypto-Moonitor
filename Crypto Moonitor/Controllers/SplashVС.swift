@@ -42,7 +42,7 @@ class SplashViewController: UIViewController {
         let gradient = CAGradientLayer()
         gradient.frame = view.bounds
         let softIndigo = UIColor(red: 0.7, green: 0.75, blue: 0.9, alpha: 1.0)
-        let lightWhite = UIColor.white.withAlphaComponent(0.2)
+        let lightWhite = UIColor.white.withAlphaComponent(0.1)
 
         gradient.colors = [softIndigo.cgColor, lightWhite.cgColor]
         gradient.startPoint = CGPoint(x: 0.5, y: 0)
@@ -52,21 +52,21 @@ class SplashViewController: UIViewController {
     }
 
     private func animateLabel() {
-        moonLabel.alpha = 0
-        moonLabel.transform = CGAffineTransform(scaleX: 0.7, y: 0.7)
+        moonLabel.alpha = 1
+        moonLabel.transform = .identity
 
-        UIView.animate(withDuration: 1, delay: 0, options: [.curveEaseOut], animations: {
-            self.moonLabel.alpha = 1
-            self.moonLabel.transform = .identity
-        }) { _ in
-        
-            UIView.animate(withDuration: 0.8, delay: 0, options: [.curveEaseIn], animations: {
+        UIView.animate(
+            withDuration: 1.0,
+            delay: 0.8,
+            options: [.curveEaseInOut],
+            animations: {
                 self.moonLabel.alpha = 0
                 self.moonLabel.transform = CGAffineTransform(scaleX: 2.2, y: 2.2)
-            }) { _ in
+            },
+            completion: { _ in
                 self.showMainScreen()
             }
-        }
+        )
     }
 
     private func showMainScreen() {

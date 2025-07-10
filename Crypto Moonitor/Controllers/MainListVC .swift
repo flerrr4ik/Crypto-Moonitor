@@ -86,27 +86,12 @@ class MainListVC: UIViewController {
         return stack
     }()
     
-    lazy var spacer1 = UIView()
-    lazy var spacer2 = UIView()
-    lazy var spacer3 = UIView()
-    
-    lazy var sortButtonsStack: UIStackView = {
-        let stack = UIStackView(arrangedSubviews: [
-            numberStack, spacer1,
-            marketCapStack, spacer2,
-            priceStack, spacer3,
-            priceChangeStack ])
-        stack.axis = .horizontal
-        stack.alignment = .center
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        return stack
-    }()
-    
     // MARK: - Segmented Control
     lazy var segmentControl: UISegmentedControl = {
         let control = UISegmentedControl(items: ["All Cryptos", "Favorites"])
         control.selectedSegmentIndex = 0
         control.translatesAutoresizingMaskIntoConstraints = false
+        control.backgroundColor = UIColor.systemIndigo.withAlphaComponent(0.1)
         control.addTarget(self, action: #selector(segmentControlChanged), for: .valueChanged)
         return control
     }()
@@ -116,24 +101,18 @@ class MainListVC: UIViewController {
         super.viewDidLoad()
         
         view.backgroundColor = .systemBackground
-        view.addSubview(segmentControl)
-        view.addSubview(tableView)
-        view.addSubview(emptyStateLabel)
-        view.addSubview(sortButtonsStack)
-        setupConstaints()
+    
+        [segmentControl,tableView, emptyStateLabel, numberStack, marketCapStack, priceStack, priceChangeStack].forEach {view.addSubview($0)}
+                                                                                                                      
+        setupConstraints()
+        setupTableViewAndTitle()
+        setupSearchController()
+        fetchData()
         
         sortByNumberButton.addTarget(self, action: #selector(sortByNumberButtonTapped), for: .touchUpInside)
         sortByPriceButton.addTarget(self, action: #selector(sortByPriceButtonTapped), for: .touchUpInside)
         sortByMarketCapButton.addTarget(self, action: #selector(sortByMarketCapButtonTapped), for: .touchUpInside)
         sortBy24hPriceChangeButton.addTarget(self, action: #selector(sortBy24hPriceChangeButtonButton), for: .touchUpInside)
-        
-        title = "Cryptocurrencies"
-        tableView.delegate = self
-        tableView.dataSource = self
-        tableView.register(CryptoCell.self, forCellReuseIdentifier: "CryptoCell")
-        
-        setupSearchController()
-        fetchData()
     }
     
     // MARK: - Helper Methods
@@ -141,7 +120,7 @@ class MainListVC: UIViewController {
         let button = UIButton(type: .system)
         button.setTitle(label, for: .normal)
         button.titleLabel?.font = UIFont.systemFont(ofSize: 12)
-        button.setTitleColor(UIColor.gray.withAlphaComponent(0.6), for: .normal)
+        button.setTitleColor(UIColor.systemIndigo.withAlphaComponent(0.6), for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }
@@ -156,12 +135,9 @@ class MainListVC: UIViewController {
     }
     
     // MARK: - Setup Methods
-    private func setupConstaints() {
+    private func setupConstraints() {
         NSLayoutConstraint.activate([
-            spacer1.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.1),
-            spacer2.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.14),
-            spacer3.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.1),
-            
+
             numberArrowImageView.widthAnchor.constraint(equalToConstant: 12),
             numberArrowImageView.heightAnchor.constraint(equalToConstant: 12),
             priceArrowImageView.widthAnchor.constraint(equalToConstant: 12),
@@ -173,15 +149,24 @@ class MainListVC: UIViewController {
             priceChangeArrowImageView.heightAnchor.constraint(equalToConstant: 12),
             
             sortByNumberButton.widthAnchor.constraint(equalToConstant: 12),
+            
             segmentControl.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             segmentControl.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             segmentControl.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            sortButtonsStack.topAnchor.constraint(equalTo: segmentControl.bottomAnchor, constant: 12),
-            sortButtonsStack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -38),
-            sortButtonsStack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 18),
-            sortButtonsStack.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.03),
             
-            tableView.topAnchor.constraint(equalTo: sortButtonsStack.bottomAnchor, constant: 10),
+            numberStack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            numberStack.topAnchor.constraint(equalTo: segmentControl.bottomAnchor, constant: 8),
+            
+            marketCapStack.leadingAnchor.constraint(equalTo: numberStack.trailingAnchor, constant: 62),
+            marketCapStack.topAnchor.constraint(equalTo: segmentControl.bottomAnchor, constant: 8),
+            
+            priceStack.trailingAnchor.constraint(equalTo: priceChangeStack.leadingAnchor, constant: -68),
+            priceStack.topAnchor.constraint(equalTo: segmentControl.bottomAnchor, constant: 8),
+            
+            priceChangeStack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -38),
+            priceChangeStack.topAnchor.constraint(equalTo: segmentControl.bottomAnchor, constant: 8),
+            
+            tableView.topAnchor.constraint(equalTo: numberStack.bottomAnchor),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
@@ -200,39 +185,52 @@ class MainListVC: UIViewController {
         segmentControl.translatesAutoresizingMaskIntoConstraints = false
         tableView.translatesAutoresizingMaskIntoConstraints = false
         emptyStateLabel.translatesAutoresizingMaskIntoConstraints = false
-        sortButtonsStack.translatesAutoresizingMaskIntoConstraints = false
+        numberStack.translatesAutoresizingMaskIntoConstraints = false
         priceStack.translatesAutoresizingMaskIntoConstraints = false
         priceChangeStack.translatesAutoresizingMaskIntoConstraints = false
         marketCapStack.translatesAutoresizingMaskIntoConstraints = false
-        sortByNumberButton.translatesAutoresizingMaskIntoConstraints = false
     }
     
     private func setupSearchController() {
         searchController.searchResultsUpdater = self
         searchController.obscuresBackgroundDuringPresentation = false
         searchController.searchBar.placeholder = "Search Cryptocurrencies"
+        searchController.searchBar.searchTextField.backgroundColor = UIColor.systemIndigo.withAlphaComponent(0.1)
         navigationItem.searchController = searchController
         definesPresentationContext = true
+    }
+    
+    private func setupTableViewAndTitle() {
+        title = "Cryptocurrencies"
+        navigationController?.navigationBar.standardAppearance.titleTextAttributes = [.foregroundColor: UIColor.systemIndigo.withAlphaComponent(0.5)]
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.register(CryptoCell.self, forCellReuseIdentifier: "CryptoCell")
+        tableView.separatorColor = UIColor.systemIndigo.withAlphaComponent(0.9)
+        tableView.rowHeight = 60
+        tableView.estimatedRowHeight = 60
     }
     
     // MARK: - Data Methods
     private func fetchData() {
         print("📡 fetchData started")
-        
-        APIService.shared.fetchCryptos { [weak self] result in
-            guard let self = self else { return }
-            
-            switch result {
-            case .success(let cryptos):
-                print("✅ fetchCryptos finished: \(cryptos.count) items")
-                self.cryptos = cryptos
-                self.filteredCryptos = cryptos
-                DispatchQueue.main.async {
-                    self.tableView.reloadData()
-                }
 
-            case .failure(let error):
-                print("❌ Failed to load cryptos: \(error.localizedDescription)")
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+
+            APIService.shared.fetchCryptos { result in
+                switch result {
+                case .success(let cryptos):
+                    print("✅ fetchCryptos finished: \(cryptos.count) items")
+                    self.cryptos = cryptos
+                    self.filteredCryptos = cryptos
+                    DispatchQueue.main.async {
+                        self.tableView.reloadData()
+                    }
+
+                case .failure(let error):
+                    print("❌ Failed to load cryptos: \(error.localizedDescription)")
+                }
             }
         }
     }
@@ -279,3 +277,4 @@ class MainListVC: UIViewController {
         selected.image = UIImage(systemName: ascending ? "arrow.down" : "arrow.up")
     }
 }
+

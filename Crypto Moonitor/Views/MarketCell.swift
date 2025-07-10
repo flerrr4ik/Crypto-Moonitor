@@ -60,7 +60,7 @@ final class MarketCell: UICollectionViewCell {
     // MARK: - Private Methods
     
     private func setupCellAppearance() {
-        contentView.backgroundColor = UIColor.systemGray6.withAlphaComponent(0.6)
+        contentView.backgroundColor = UIColor.systemIndigo.withAlphaComponent(0.1)
         contentView.layer.cornerRadius = 12
         contentView.clipsToBounds = true
     }

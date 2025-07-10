@@ -1,3 +1,6 @@
+<p>
+  <img src="docs/main.png" width="100%" style="border-radius: 12px;" />
+</p>
 
 # Crypto Moonitor
 
@@ -66,14 +69,6 @@ The application is based on the MVC architecture, extended with protocol-driven 
 
 **Andrii Pyrskyi**  
 GitHub: [@flerrr4ik](https://github.com/flerrr4ik)
-
-
-<p>
-  <img src="docs/main.png" width="32%" style="margin-right: 2%;" />
-  <img src="docs/favorite.png" width="32%" style="margin-right: 2%;" />
-  <img src="docs/detail.png" width="32%" />
-</p>
-
 
 ---
 

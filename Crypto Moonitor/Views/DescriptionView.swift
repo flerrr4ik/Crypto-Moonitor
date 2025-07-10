@@ -15,7 +15,7 @@ final class DescriptionView: UIViewController {
         let tv = UITextView()
         tv.font = UIFont.systemFont(ofSize: 16)
         tv.textColor = .label
-        tv.backgroundColor = UIColor.systemGray6
+        tv.backgroundColor = UIColor.systemIndigo.withAlphaComponent(0.1)
         tv.isEditable = false
         tv.isScrollEnabled = true
         tv.textContainerInset = UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)

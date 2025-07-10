@@ -18,21 +18,21 @@ class DetailedCryptoVC: UIViewController {
     let scrollView = UIScrollView()
     let contentView = UIView()
 
-    // Data Models
+    // MARK: - Data Models
     var crypto: Crypto?
     var detailedCrypto: DetailedCrypto?
     var exchangeLogos: [String: String] = [:]
     var tickers: [Ticker] = []
     var exchangeURLs: [String: String] = [:]
     
-    // Chart Data
+    // MARK: - Chart Data
     private var currentChartTask: URLSessionDataTask?
     private var isLoadingChart = false
     private var lastChartRequestTime: Date?
     private var chartCache: [TimeRange: [ChartDataEntry]] = [:]
     private var currentTimeRange: TimeRange = .day
     
-    // URLs & Descriptions
+    // MARK: - URLs & Descriptions
     private var githubURLString: String?
     private var twitterURLString: String?
     private var redditURLString: String?
@@ -41,7 +41,7 @@ class DetailedCryptoVC: UIViewController {
     
     // MARK: - UI Components
     
-    // Labels
+    // MARK: Labels
     private lazy var symbolLabel = UILabel()
     private lazy var priceLabel = UILabel()
     private lazy var priceChangeLabel = UILabel()
@@ -55,11 +55,11 @@ class DetailedCryptoVC: UIViewController {
     private lazy var platformLabel = UILabel()
     private lazy var contractLabel = UILabel()
     
-    // ImageViews & Chart
+    // MARK: ImageViews & Chart
     private let logoImageView = UIImageView()
     private let chartView = LineChartView()
     
-    // Buttons
+    // MARK: Buttons
     private let gitHubButton = makeSocialButton(named: "github", title: "   GitHub")
     private let twitterButton = makeSocialButton(named: "twitter", title: "   Twitter")
     private let redditButton = makeSocialButton(named: "reddit", title: "   Reddit")
@@ -68,14 +68,14 @@ class DetailedCryptoVC: UIViewController {
     private let descriptionButton = makeButton(named: "info")
     private let notificationButton = makeButton(named: "notification")
     
-    // Controls & Views
+    // MARK: Controls & Views
     private let timeRangeControl = UISegmentedControl(items: ["1h", "24h", "7d", "30d", "90d"])
     private let infoTableView = UITableView()
     private var priceCheckTimer: Timer?
     var infoRows: [InfoRow] = []
     let notificationManager: NotificationManaging = NotificationService.shared
     
-    // Collection Views & Stacks
+    // MARK: Collection Views & Stacks
     private lazy var marketsCollectionView: UICollectionView = {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
@@ -162,7 +162,7 @@ class DetailedCryptoVC: UIViewController {
         }
         
         priceCheckTimer = Timer.scheduledTimer(withTimeInterval: 30, repeats: true) { [weak self] _ in
-            self?.checkPriceTarget()
+            self?.checkPriceAndTarget()
         }
         
         guard let crypto = crypto else {
@@ -234,6 +234,7 @@ class DetailedCryptoVC: UIViewController {
         infoTableView.translatesAutoresizingMaskIntoConstraints = false
         infoTableView.backgroundColor = .clear
         infoTableView.isScrollEnabled = false
+        
     }
  
     private func setupDelegates() {
@@ -246,6 +247,7 @@ class DetailedCryptoVC: UIViewController {
         timeRangeControl.selectedSegmentIndex = currentTimeRange.rawValue
         timeRangeControl.addTarget(self, action: #selector(timeRangeChanged), for: .valueChanged)
         timeRangeControl.translatesAutoresizingMaskIntoConstraints = false
+        timeRangeControl.backgroundColor = .systemIndigo.withAlphaComponent(0.09)
     }
     
     private func setupChartView() {
@@ -276,7 +278,7 @@ class DetailedCryptoVC: UIViewController {
         xAxis.avoidFirstLastClippingEnabled = true
         
         chartView.rightAxis.enabled = false
-        chartView.leftAxis.labelFont = .systemFont(ofSize: 6)
+        chartView.leftAxis.labelFont = .systemFont(ofSize: 10)
         chartView.leftAxis.labelTextColor = .secondaryLabel
         chartView.leftAxis.gridColor = .systemGray4
     }
@@ -300,12 +302,12 @@ class DetailedCryptoVC: UIViewController {
             
             socialMediaStack.topAnchor.constraint(equalTo: mainDetailStack.topAnchor),
             socialMediaStack.leadingAnchor.constraint(equalTo: mainDetailStack.trailingAnchor, constant: 6),
-            socialMediaStack.trailingAnchor.constraint(equalTo: buttonsStack.leadingAnchor, constant: -6),
+            socialMediaStack.trailingAnchor.constraint(equalTo: buttonsStack.leadingAnchor, constant: -4),
             socialMediaStack.bottomAnchor.constraint(equalTo: mainDetailStack.bottomAnchor),
             
             buttonsStack.topAnchor.constraint(equalTo: socialMediaStack.topAnchor),
-            buttonsStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -6),
-            buttonsStack.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.17),
+            buttonsStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            buttonsStack.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.16),
             buttonsStack.heightAnchor.constraint(equalTo: socialMediaStack.heightAnchor),
             
             timeRangeControl.topAnchor.constraint(equalTo: mainDetailStack.bottomAnchor, constant: 12),
@@ -317,7 +319,7 @@ class DetailedCryptoVC: UIViewController {
             chartView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             chartView.heightAnchor.constraint(equalTo: contentView.heightAnchor, multiplier: 0.24),
             
-            marketsCollectionView.topAnchor.constraint(equalTo: chartView.bottomAnchor, constant: 2),
+            marketsCollectionView.topAnchor.constraint(equalTo: chartView.bottomAnchor),
             marketsCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             marketsCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             marketsCollectionView.heightAnchor.constraint(equalTo: contentView.heightAnchor ,multiplier: 0.11),
@@ -347,14 +349,14 @@ class DetailedCryptoVC: UIViewController {
         
         button.setTitle(title, for: .normal)
         button.setTitleColor(.label, for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
+        button.titleLabel?.font = .systemFont(ofSize: 15, weight: .medium)
         button.contentHorizontalAlignment = .leading
         button.semanticContentAttribute = .forceLeftToRight
         button.imageView?.contentMode = .scaleAspectFit
         button.imageView?.clipsToBounds = true
-        button.heightAnchor.constraint(equalToConstant: 40).isActive = true
+        button.heightAnchor.constraint(equalToConstant: 38).isActive = true
         button.widthAnchor.constraint(equalToConstant: 165).isActive = true
-        button.backgroundColor = .systemGray5.withAlphaComponent(0.4)
+        button.backgroundColor = .systemIndigo.withAlphaComponent(0.08)
         button.layer.cornerRadius = 20
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
@@ -379,12 +381,8 @@ class DetailedCryptoVC: UIViewController {
         button.isExclusiveTouch = true
         button.contentHorizontalAlignment = .center
         button.contentVerticalAlignment = .center
- 
-        button.heightAnchor.constraint(equalToConstant: 50).isActive = true
-        button.widthAnchor.constraint(equalToConstant: 50).isActive = true
-        button.imageView?.heightAnchor.constraint(equalTo: button.heightAnchor, multiplier: 0.8).isActive = true
-        button.imageView?.widthAnchor.constraint(equalTo: button.widthAnchor, multiplier: 0.8).isActive = true
-     
+        button.layer.cornerRadius = 16
+
         return button
     }
     
@@ -407,7 +405,13 @@ class DetailedCryptoVC: UIViewController {
         symbolLabel.text = crypto.symbol.uppercased()
         symbolLabel.font = .systemFont(ofSize: 26, weight: .medium)
         
-        priceLabel.text = String(format: "%.5f$", crypto.current_price)
+        if crypto.current_price > 1 {
+            priceLabel.text = String(format: "%.2f$", crypto.current_price)
+        }
+        else {
+            priceLabel.text = String(format: "%.5f$", crypto.current_price)
+        }
+     
         priceLabel.font = .monospacedDigitSystemFont(ofSize: 24, weight: .bold)
         priceLabel.textColor = .label
         priceLabel.numberOfLines = 0
@@ -600,7 +604,7 @@ class DetailedCryptoVC: UIViewController {
             gradientLayer.name = "fadeGradient"
             gradientLayer.colors = [
                 UIColor.clear.cgColor,
-                UIColor.systemGray.withAlphaComponent(0.08).cgColor
+                UIColor.systemIndigo.withAlphaComponent(0.1).cgColor
             ]
             gradientLayer.startPoint = CGPoint(x: 0, y: 0.5)
             gradientLayer.endPoint = CGPoint(x: 1, y: 0.5)
@@ -635,25 +639,43 @@ class DetailedCryptoVC: UIViewController {
     
     // MARK: - Timer Methods
     
-    private func checkPriceTarget() {
+    private func checkPriceAndTarget() {
         guard let id = crypto?.id else { return }
-        let key = "alert_\(id)"
-        let target = UserDefaults.standard.double(forKey: key)
-
-        guard target > 0 else { return }
 
         APIService.shared.fetchPrice(for: id) { [weak self] result in
             guard let self = self else { return }
+
             switch result {
-            case .success ( let newPrice) :
-                
-                priceLabel.text = String(format: "%.5f$", newPrice)
+            case .success(let newPrice):
                 DispatchQueue.main.async {
+                    guard let oldPrice = self.crypto?.current_price else { return }
+
+                    if newPrice > 1 {
+                        self.priceLabel.text = String(format: "%.2f$", newPrice)
+                    } else {
+                        self.priceLabel.text = String(format: "%.5f$", newPrice)
+                    }
+
+                    if newPrice > oldPrice {
+                        self.priceLabel.textColor = .systemGreen
+                    } else if newPrice < oldPrice {
+                        self.priceLabel.textColor = .systemRed
+                    } else {
+                        self.priceLabel.textColor = .label
+                    }
+                    
+                    self.crypto?.current_price = newPrice
+
+                    let key = "alert_\(id)"
+                    let target = UserDefaults.standard.double(forKey: key)
+
                     print("New price: \(newPrice), target: \(target)")
-                    if newPrice >= target {
+
+                    if target > 0 && newPrice >= target {
                         self.triggerNotification(for: id, price: newPrice)
                     }
                 }
+
             case .failure(let error):
                 print("❌ Failed to check price: \(error.localizedDescription)")
             }

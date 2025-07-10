@@ -73,7 +73,7 @@ final class InfoCell: UITableViewCell {
     
     private func setupCellAppearance() {
         backgroundColor = .clear
-        contentView.backgroundColor = UIColor.systemPurple.withAlphaComponent(0.05)
+        contentView.backgroundColor = UIColor.systemIndigo.withAlphaComponent(0.1)
         contentView.layer.cornerRadius = 14
         contentView.layer.masksToBounds = false
         contentView.layer.shadowColor = UIColor.black.cgColor

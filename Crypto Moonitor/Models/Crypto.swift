@@ -11,9 +11,9 @@ struct Crypto: Codable {
     let id: String
     let name: String
     let symbol: String
-    let current_price: Double
+    var current_price: Double
     let image: String
-    let market_cap: Int?
+    let market_cap: Double?
     let price_change_percentage_24h: Double?
     let market_cap_rank: Int
     let sparkline_in_7d: SparklineData?
