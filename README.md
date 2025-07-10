@@ -1,5 +1,5 @@
 <p>
-  <img src="docs/main.png" width="100%" style="border-radius: 12px;" />
+  <img src="docs/presentPicture.png" width="100%" style="border-radius: 12px;" />
 </p>
 
 # Crypto Moonitor
