@@ -101,20 +101,16 @@ class MainListVC: UIViewController {
         super.viewDidLoad()
         
         view.backgroundColor = .systemBackground
-    
+        
         [segmentControl,tableView, emptyStateLabel, numberStack, marketCapStack, priceStack, priceChangeStack].forEach {view.addSubview($0)}
-                                                                                                                      
+        
         setupConstraints()
         setupTableViewAndTitle()
         setupSearchController()
         fetchData()
-        
-        sortByNumberButton.addTarget(self, action: #selector(sortByNumberButtonTapped), for: .touchUpInside)
-        sortByPriceButton.addTarget(self, action: #selector(sortByPriceButtonTapped), for: .touchUpInside)
-        sortByMarketCapButton.addTarget(self, action: #selector(sortByMarketCapButtonTapped), for: .touchUpInside)
-        sortBy24hPriceChangeButton.addTarget(self, action: #selector(sortBy24hPriceChangeButtonButton), for: .touchUpInside)
+        setupActions()
+      
     }
-    
     // MARK: - Helper Methods
     private static func makeSortButtons(label: String) -> UIButton {
         let button = UIButton(type: .system)
@@ -135,6 +131,14 @@ class MainListVC: UIViewController {
     }
     
     // MARK: - Setup Methods
+    
+    private func setupActions() {
+        sortByNumberButton.addTarget(self, action: #selector(sortByNumberButtonTapped), for: .touchUpInside)
+        sortByPriceButton.addTarget(self, action: #selector(sortByPriceButtonTapped), for: .touchUpInside)
+        sortByMarketCapButton.addTarget(self, action: #selector(sortByMarketCapButtonTapped), for: .touchUpInside)
+        sortBy24hPriceChangeButton.addTarget(self, action: #selector(sortBy24hPriceChangeButtonButton), for: .touchUpInside)
+    }
+    
     private func setupConstraints() {
         NSLayoutConstraint.activate([
 

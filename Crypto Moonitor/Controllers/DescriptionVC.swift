@@ -17,6 +17,7 @@ final class DescriptionView: UIViewController {
         tv.textColor = .label
         tv.backgroundColor = UIColor.systemIndigo.withAlphaComponent(0.1)
         tv.isEditable = false
+        tv.isSelectable = true
         tv.isScrollEnabled = true
         tv.textContainerInset = UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
         tv.layer.cornerRadius = 16
@@ -47,7 +48,8 @@ final class DescriptionView: UIViewController {
     
     var text: String? {
         didSet {
-            textView.text = text
+            guard let text else { return }
+            textView.attributedText = makeFormattedDescription(from: text)
         }
     }
     
@@ -92,5 +94,22 @@ final class DescriptionView: UIViewController {
     
     @objc private func dismissSelf() {
         dismiss(animated: true)
+    }
+    
+    // MARK: - Formatting
+    
+    private func makeFormattedDescription(from text: String) -> NSAttributedString {
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineSpacing = 6
+        paragraphStyle.paragraphSpacing = 10
+        paragraphStyle.alignment = .justified
+        
+        let attributes: [NSAttributedString.Key: Any] = [
+            .font: UIFont.systemFont(ofSize: 16),
+            .foregroundColor: UIColor.label,
+            .paragraphStyle: paragraphStyle
+        ]
+        
+        return NSAttributedString(string: text, attributes: attributes)
     }
 }
